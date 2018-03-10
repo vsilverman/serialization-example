@@ -5,13 +5,16 @@
 
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 
-import java.util.Base64;
-import java.util.Base64.Encoder;
+import java.util.Random;
+
+import org.junit.Test;
+//import org.junit.Assert;
 
 
 /**
@@ -20,13 +23,16 @@ import java.util.Base64.Encoder;
  */
 public class TestMyTable {
 	
-	public static void serialize(Object obj) {
-		writeToFile(obj);
+	public static String serialize(Object obj) {
+		return writeToFile(obj);
 	}
 	
-	public static void writeToFile(Object obj) {
+	public static String writeToFile(Object obj) {
+		if (obj == null)
+			return null;
+		String fileName = "./my-table.txt"; 
 		try {
-			FileOutputStream fos = new FileOutputStream(new File("./my-table.txt"));
+			FileOutputStream fos = new FileOutputStream(new File(fileName));
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			
 			oos.writeObject(obj);
@@ -36,17 +42,20 @@ public class TestMyTable {
 		catch (IOException iox) {
 			iox.getStackTrace();
 		}
+		return fileName;
 	}
 
 
-	public static String[][] deserialize() {
-		return readFromFile();
+	public static String[][] deserialize(String fileName) {
+		return readFromFile(fileName);
 	}
 	
-	public static String[][] readFromFile() {
+	public static String[][] readFromFile(String fileName) {
+		if (fileName == null)
+			return null;
 		String[][] s2 = null;
 		try {
-			FileInputStream fis = new FileInputStream(new File("./my-table.txt"));
+			FileInputStream fis = new FileInputStream(new File(fileName));
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			
 			s2 = (String[][])ois.readObject();
@@ -78,6 +87,34 @@ public class TestMyTable {
 	}
 
 	
+	@Test
+	public void testNumberOfRows() {
+			String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
+			String myFile = TestMyTable.serialize(myTable);
+			String[][] myNewTable = TestMyTable.deserialize(myFile);
+			assert(myTable.length == myNewTable.length);
+	}
+	
+	@Test
+	public void testNumberOfCols() {
+			String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
+			String myFile = TestMyTable.serialize(myTable);
+			String[][] myNewTable = TestMyTable.deserialize(myFile);
+			assert(myTable[0].length == myNewTable[0].length);
+	}
+	
+	@Test
+	public void testRandomCell() {
+			String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
+			String myFile = TestMyTable.serialize(myTable);
+			String[][] myNewTable = TestMyTable.deserialize(myFile);
+			Random random = new Random();
+			int row = random.nextInt(2);
+			int col = random.nextInt(2);
+			System.out.println("Random row: "+row+"--- Random col: "+col);
+			assert(myTable[row][col].equals(myNewTable[row][col]));
+	}
+	
 	
 	/**
 	 * @param args
@@ -89,8 +126,8 @@ public class TestMyTable {
 		System.out.println("MyTable Before Serialization");
 		System.out.println(table2printout(myTable));
 
-		TestMyTable.serialize(myTable);
-		String[][] myNewTable = TestMyTable.deserialize();
+		String myFile = TestMyTable.serialize(myTable);
+		String[][] myNewTable = TestMyTable.deserialize(myFile);
 
 		System.out.println("\nMyTable After Deserialization");
 		System.out.println(table2printout(myNewTable));
