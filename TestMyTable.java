@@ -13,20 +13,39 @@ import java.io.ObjectInputStream;
 
 import java.util.Random;
 
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-//import org.junit.Assert;
+import org.junit.After;
+import org.junit.AfterClass;
 
 
 /**
  * @author Vlad
  *
  */
+/**
+ * @author Vlad
+ *
+ */
 public class TestMyTable {
 	
+	private static String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
+	private static String[][] myNewTable = null;
+	
+	/**
+	 * @param obj
+	 * @return
+	 */
 	public static String serialize(Object obj) {
 		return writeToFile(obj);
 	}
 	
+	/**
+	 * @param obj
+	 * @return
+	 */
 	public static String writeToFile(Object obj) {
 		if (obj == null)
 			return null;
@@ -46,10 +65,18 @@ public class TestMyTable {
 	}
 
 
+	/**
+	 * @param fileName
+	 * @return
+	 */
 	public static String[][] deserialize(String fileName) {
 		return readFromFile(fileName);
 	}
 	
+	/**
+	 * @param fileName
+	 * @return
+	 */
 	public static String[][] readFromFile(String fileName) {
 		if (fileName == null)
 			return null;
@@ -72,6 +99,10 @@ public class TestMyTable {
 	}
 	
 	
+	/**
+	 * @param table
+	 * @return
+	 */
 	public static String table2printout(String[][] table) {
 		String printout = "";
 		for (int row= 0; row < table.length; row++) {
@@ -85,34 +116,36 @@ public class TestMyTable {
 		}
 		return printout;
 	}
+	
+	
+	/**
+     * Sets up the test fixture. 
+     * (Called before every test case method.)
+     */
+    @Before
+    public void setUp() {
+		String myFile = TestMyTable.serialize(myTable);
+		myNewTable = TestMyTable.deserialize(myFile);
+    }
 
 	
 	@Test
 	public void testNumberOfRows() {
-			String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
-			String myFile = TestMyTable.serialize(myTable);
-			String[][] myNewTable = TestMyTable.deserialize(myFile);
-			assert(myTable.length == myNewTable.length);
+			assertTrue(myTable.length == myNewTable.length);
 	}
 	
 	@Test
 	public void testNumberOfCols() {
-			String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
-			String myFile = TestMyTable.serialize(myTable);
-			String[][] myNewTable = TestMyTable.deserialize(myFile);
-			assert(myTable[0].length == myNewTable[0].length);
+			assertTrue(myTable[0].length == myNewTable[0].length);
 	}
 	
 	@Test
 	public void testRandomCell() {
-			String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
-			String myFile = TestMyTable.serialize(myTable);
-			String[][] myNewTable = TestMyTable.deserialize(myFile);
 			Random random = new Random();
 			int row = random.nextInt(2);
 			int col = random.nextInt(2);
 			System.out.println("Random row: "+row+"--- Random col: "+col);
-			assert(myTable[row][col].equals(myNewTable[row][col]));
+			assertTrue(myTable[row][col].equals(myNewTable[row][col]));
 	}
 	
 	
@@ -121,17 +154,15 @@ public class TestMyTable {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String[][] myTable = {{"1", "2", "3"}, {"4", "5", "6"}};
 		
 		System.out.println("MyTable Before Serialization");
 		System.out.println(table2printout(myTable));
 
 		String myFile = TestMyTable.serialize(myTable);
-		String[][] myNewTable = TestMyTable.deserialize(myFile);
+		myNewTable = TestMyTable.deserialize(myFile);
 
 		System.out.println("\nMyTable After Deserialization");
 		System.out.println(table2printout(myNewTable));
-
 	}
 
 }
